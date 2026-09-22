@@ -110,7 +110,11 @@ export default function Player() {
 
         <div className="flex z-50 gap-1 justify-between p-1 w-full text-lg bg-black">
           <div className="flex gap-1 w-72 font-extrabold">
-            <img className="w-8" src="/logo.png" alt="Youtubeoke Logo" />
+            <img
+              className="w-8"
+              src={`${import.meta.env.VITE_BASE_PATH}logo.png`}
+              alt="Youtubeoke Logo"
+            />
             Youtubeoke
           </div>
           <div className="flex w-full truncate grow">
