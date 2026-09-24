@@ -1,21 +1,27 @@
 import { useNavigation } from "react-router";
 
-export function SpinnerIcon({ inline }) {
-  if (inline) {
-    return (
-      <div className="loading-icon inline-block w-5! h-5! leading-5">
-        &nbsp;
-      </div>
-    );
-  }
-
-  return <div className="loading-icon"></div>;
-}
-
-export function Spinner() {
+export function Spinner({ message = "Loading..." }) {
   return (
-    <div className="fixed flex justify-center items-center h-full w-full -mt-16">
-      <SpinnerIcon />
+    <div className="relative flex items-center justify-center w-full overflow-hidden h-20">
+      <div
+        className="absolute inset-y-0 -left-1/2 -right-1/2 -z-10 opacity-50
+         bg-[linear-gradient(-60deg,#f20_50%,#000_50%)]
+         h-20
+         animate-slide"
+      ></div>
+      <div
+        className="absolute inset-y-0 -left-1/2 -right-1/2 -z-10 opacity-50
+         bg-[linear-gradient(-60deg,#f20_50%,#000_50%)]
+         h-20
+         animate-slide [animation-duration:1s]"
+      ></div>
+      <div
+        className="absolute inset-y-0 -left-1/2 -right-1/2 -z-10 opacity-50
+         bg-[linear-gradient(-60deg,#f20_50%,#000_50%)]
+         h-20
+         animate-slide [animation-duration:2s]"
+      ></div>
+      <div className="">{message}</div>
     </div>
   );
 }

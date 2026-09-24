@@ -1,22 +1,14 @@
 import { useState } from "react";
 import { search, getNextPage, playVideo, addToQueue } from "../util/yt";
 import { addToFavorites } from "../util/faves";
-import {
-  useLoaderData,
-  useNavigate,
-  useOutletContext,
-  useParams,
-} from "react-router";
-import { SpinnerIcon } from "./Loader";
+import { useLoaderData, useParams } from "react-router";
+import { Spinner } from "./Loader";
 import List from "./List";
 import ErrorComponent from "./ErrorComponent";
 
 export default function RemoteSearch() {
   const { items, hasNextPage } = useLoaderData();
   const { playerID } = useParams();
-
-  const navigate = useNavigate();
-  const { clearKeyword } = useOutletContext();
 
   const [currentItems, setCurrentItems] = useState(items);
   const [currentHasNextPage, setCurrentHasNextPage] = useState(hasNextPage);
@@ -104,16 +96,18 @@ export default function RemoteSearch() {
             onSelect={listClickHandler}
           />
 
-          {currentHasNextPage && (
+          {currentHasNextPage && !isLoading && (
             <button
               className="w-full p-2 bg-white/50 my-2 rounded-2xl"
               type="button"
               onClick={loadMoreHandler}
               disabled={isLoading}
             >
-              {isLoading ? <SpinnerIcon inline={true} /> : "Load more"}
+              Load more
             </button>
           )}
+
+          {isLoading && <div className="my-2 h-10"><Spinner /></div>}
 
           {error && <ErrorComponent className="mt-2" message={error} />}
         </>
