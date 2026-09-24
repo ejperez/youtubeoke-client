@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { search, getNextPage, playVideo, addToQueue } from "../util/yt";
+import { getNextPage, playVideo, addToQueue } from "../util/yt";
 import { addToFavorites } from "../util/faves";
 import { useLoaderData, useParams } from "react-router";
-import { Spinner } from "./Loader";
+import { AnimatedMessage } from "./Loader";
 import List from "./List";
 import ErrorComponent from "./ErrorComponent";
 
@@ -107,18 +107,11 @@ export default function RemoteSearch() {
             </button>
           )}
 
-          {isLoading && <div className="my-2 h-10"><Spinner /></div>}
+          {isLoading && <div className="my-2 h-10"><AnimatedMessage message="Loading more..." heightClass="h-10" /></div>}
 
           {error && <ErrorComponent className="mt-2" message={error} />}
         </>
       )}
     </div>
   );
-}
-
-export async function loader({ request }) {
-  const [, searchParams] = request.url.split("?");
-  const keyword = new URLSearchParams(searchParams).get("keyword");
-
-  return await search(keyword + " karaoke");
 }

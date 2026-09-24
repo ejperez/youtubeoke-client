@@ -4,13 +4,13 @@ import "./index.css";
 import { createHashRouter, RouterProvider } from "react-router";
 import Player from "./routes/Player.jsx";
 import Remote from "./routes/Remote.jsx";
-import RemoteSearch, {
-  loader as RemoteSearchLoader,
-} from "./components/RemoteSearch.jsx";
-import { Spinner } from "./components/Loader.jsx";
-import RemoteFaves, {
-  loader as RemoteFavesLoader,
-} from "./components/RemoteFaves.jsx";
+import RemoteSearch from "./components/RemoteSearch.jsx";
+import { AnimatedMessage } from "./components/Loader.jsx";
+import RemoteFaves from "./components/RemoteFaves.jsx";
+import {
+  remoteFavesLoader,
+  remoteSearchLoader,
+} from "./util/loaders.js";
 import RemoteQueue from "./components/RemoteQueue.jsx";
 import ErrorComponent from "./components/ErrorComponent.jsx";
 
@@ -26,14 +26,14 @@ const router = createHashRouter([
       {
         path: "/:playerID/remote",
         element: <RemoteFaves />,
-        loader: RemoteFavesLoader,
-        hydrateFallbackElement: <Spinner />,
+        loader: remoteFavesLoader,
+        hydrateFallbackElement: <AnimatedMessage />,
       },
       {
         path: "/:playerID/remote/search",
         element: <RemoteSearch />,
-        loader: RemoteSearchLoader,
-        hydrateFallbackElement: <Spinner />,
+        loader: remoteSearchLoader,
+        hydrateFallbackElement: <AnimatedMessage />,
         errorElement: (
           <ErrorComponent message="There has been a server error. Please try again later." />
         ),

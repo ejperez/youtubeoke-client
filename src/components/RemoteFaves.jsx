@@ -1,5 +1,5 @@
 import { useLoaderData, useParams } from "react-router";
-import { getFavorites, removeFromFavorites } from "../util/faves";
+import { removeFromFavorites } from "../util/faves";
 import { useState } from "react";
 import { playVideo } from "../util/yt";
 import { addToQueue } from "../util/yt";
@@ -68,8 +68,4 @@ export default function RemoteFaves() {
       />
     </div>
   );
-}
-
-export async function loader({ request }) {
-  return await getFavorites();
 }
