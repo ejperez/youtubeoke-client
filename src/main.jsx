@@ -7,10 +7,7 @@ import Remote from "./routes/Remote.jsx";
 import RemoteSearch from "./components/RemoteSearch.jsx";
 import { AnimatedMessage } from "./components/Loader.jsx";
 import RemoteFaves from "./components/RemoteFaves.jsx";
-import {
-  remoteFavesLoader,
-  remoteSearchLoader,
-} from "./util/loaders.js";
+import { remoteFavesLoader, remoteSearchLoader } from "./util/loaders.js";
 import RemoteQueue from "./components/RemoteQueue.jsx";
 import ErrorComponent from "./components/ErrorComponent.jsx";
 
@@ -55,5 +52,5 @@ if (storageSupport) {
     </StrictMode>,
   );
 } else {
-  document.writeln("This app needs local and session storage features.");
+  alert("This app needs local and session storage features.");
 }

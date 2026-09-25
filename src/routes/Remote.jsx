@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import { cn } from "../util/util";
 import { useLocation } from "react-router";
 import { getSocket } from "../util/socket";
+import { getFavorites } from "../util/faves";
 
 export default function Remote() {
   const socket = getSocket();
@@ -20,6 +21,7 @@ export default function Remote() {
         : "faves",
   );
   const [queueCount, setQueueCount] = useState(0);
+  const [favesCount, setFavesCount] = useState(0);
 
   useEffect(() => {
     socket.on("sync-event", (data) => {
@@ -49,7 +51,16 @@ export default function Remote() {
     };
   }, []);
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    const getFavesCount = async () => {
+      const faves = await getFavorites();
+      setFavesCount(faves.length);
+    };
+
+    getFavesCount();
+  }, []);
+
+  const handleSubmit = () => {
     keywordField.current.blur();
   };
 
@@ -98,14 +109,27 @@ export default function Remote() {
           <Link
             to={`/${playerID}/remote`}
             title="Click to see favorites"
-            className={cn("size-10 inline-block rounded-full border-2 p-1", {
-              "bg-white text-black border-white": currentView === "faves",
-            })}
+            className={cn(
+              "relative size-10 inline-block rounded-full border-2 p-1",
+              {
+                "bg-white text-black border-white": currentView === "faves",
+              },
+            )}
             onClick={() => {
               keywordField.current.value = "";
               setCurrentView("faves");
             }}
           >
+            <div
+              className={cn(
+                "bg-white text-black absolute -right-1 -top-1 border-black border rounded-full text-[10px] font-bold px-1",
+                {
+                  "bg-black text-white border-white": currentView === "faves",
+                },
+              )}
+            >
+              {favesCount}
+            </div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -122,9 +146,12 @@ export default function Remote() {
           <Link
             to={`/${playerID}/remote/queue`}
             title="Click to see queue"
-            className={cn("size-10 inline-block rounded-full border-2 p-1", {
-              "bg-white text-black border-white": currentView === "queue",
-            })}
+            className={cn(
+              "relative size-10 inline-block rounded-full border-2 p-1",
+              {
+                "bg-white text-black border-white": currentView === "queue",
+              },
+            )}
             onClick={() => {
               keywordField.current.value = "";
               setCurrentView("queue");
@@ -132,7 +159,7 @@ export default function Remote() {
           >
             <div
               className={cn(
-                "bg-white text-black absolute right-2 top-2 border-black border-2 rounded-full text-xs font-bold px-1",
+                "bg-white text-black absolute -right-1 -top-1 border-black border rounded-full text-[10px] font-bold px-1",
                 {
                   "bg-black text-white border-white": currentView === "queue",
                 },

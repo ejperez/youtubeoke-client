@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { generateCode } from "../util/util";
 import { getSocket } from "../util/socket";
 import PlayerFrame from "../components/PlayerFrame";
@@ -6,19 +6,53 @@ import PlayerHome from "../components/PlayerHome";
 import { QRCode } from "react-qr-code";
 
 export default function Player() {
-  const id = useMemo(generateCode, []);
+  const [playerID, setPlayerID] = useState(null);
   const socket = getSocket();
   const [currentVideo, setCurrentVideo] = useState(null);
   const [queue, setQueue] = useState([]);
   const [hasError, setHasError] = useState(false);
-  const remoteLink = `${document.location.href}/#${id}/remote`;
+  const remoteLink = `${document.location.href}/#${playerID}/remote`;
   const queueRef = useRef(queue);
   const currentVideoRef = useRef(currentVideo);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   useEffect(() => {
+    // Get player ID from localStorage or generate a new one
+    const savedPlayerID = localStorage.getItem("playerID");
+
+    if (savedPlayerID) {
+      setPlayerID(savedPlayerID);
+    } else {
+      const newPlayerID = generateCode();
+      localStorage.setItem("playerID", newPlayerID);
+      setPlayerID(newPlayerID);
+    }
+
+    // Load queue and current video from localStorage
+    const savedQueue = localStorage.getItem("queue");
+    const savedCurrentVideo = localStorage.getItem("currentVideo");
+
+    if (savedQueue) {
+      setQueue(JSON.parse(savedQueue));
+    }
+    if (savedCurrentVideo) {
+      setCurrentVideo(JSON.parse(savedCurrentVideo));
+    }
+
+    setIsInitialLoad(false);
+  }, []);
+
+  useEffect(() => {
+    if (isInitialLoad) return;
+
+    // Update queue and current video references for socket synchronization
     queueRef.current = queue;
     currentVideoRef.current = currentVideo;
-  }, [queue, currentVideo]);
+
+    // Save queue and current video to localStorage
+    localStorage.setItem("queue", JSON.stringify(queue));
+    localStorage.setItem("currentVideo", JSON.stringify(currentVideo));
+  }, [queue, currentVideo, isInitialLoad]);
 
   const playNextInQueue = () => {
     if (queue.length > 0) {
@@ -33,7 +67,7 @@ export default function Player() {
     socket.emit("sync-event", {
       action: "current-queue",
       payload: {
-        playerID: id,
+        playerID: playerID,
         queue: queueRef.current,
         currentVideo: currentVideoRef.current,
       },
@@ -56,17 +90,17 @@ export default function Player() {
     }
   }, [queue, currentVideo]);
 
+  // Broadcast queue and current video to server
   useEffect(() => {
     broadcastQueue();
-  }, [queue, currentVideo]);
+  }, [queue, currentVideo, playerID]);
 
+  // Handle sync events from server
   useEffect(() => {
     socket.on("sync-event", (data) => {
-      if (id !== data.payload.playerID) {
+      if (playerID !== data.payload.playerID) {
         return;
       }
-
-      console.log(data);
 
       switch (data.action) {
         case "play-item":
@@ -93,11 +127,45 @@ export default function Player() {
     return () => {
       socket.off("sync-event");
     };
-  }, []);
+  }, [playerID]);
 
+  // Render the player
   return (
     <>
       <div className="flex flex-col h-screen">
+        <div className="flex z-50 gap-1 justify-between p-1 w-full text-sm bg-black">
+          <div className="flex gap-1 w-64 font-extrabold">
+            <img
+              className="w-5"
+              src={`${import.meta.env.VITE_BASE_PATH}logo.png`}
+              alt="Youtubeoke Logo"
+            />
+            Youtubeoke
+          </div>
+          <div className="flex w-full min-w-0 grow">
+            {currentVideo && (
+              <>
+                <span className="pr-1 text-green-500 shrink-0">
+                  NOW PLAYING
+                </span>
+                <span className="truncate">{currentVideo.title}</span>
+              </>
+            )}
+          </div>
+          <div className="flex pl-2 w-full min-w-0 grow">
+            {queue[0] && (
+              <>
+                <span className="pr-1 text-yellow-500 shrink-0">COMING UP</span>
+                <span className="truncate">{queue[0].title}</span>
+              </>
+            )}
+          </div>
+          <div className="w-72 text-right">
+            <span className="pr-1 text-red-500">RESERVED</span>
+            {queue.length}
+          </div>
+        </div>
+
         {currentVideo ? (
           <PlayerFrame
             videoID={currentVideo.id}
@@ -105,39 +173,8 @@ export default function Player() {
             onError={handleError}
           />
         ) : (
-          <PlayerHome playerID={id} />
+          <PlayerHome playerID={playerID} />
         )}
-
-        <div className="flex z-50 gap-1 justify-between p-1 w-full text-lg bg-black">
-          <div className="flex gap-1 w-72 font-extrabold">
-            <img
-              className="w-8"
-              src={`${import.meta.env.VITE_BASE_PATH}logo.png`}
-              alt="Youtubeoke Logo"
-            />
-            Youtubeoke
-          </div>
-          <div className="flex w-full truncate grow">
-            {currentVideo && (
-              <>
-                <span className="pr-1 text-green-500">NOW PLAYING:</span>
-                {currentVideo.title}
-              </>
-            )}
-          </div>
-          <div className="flex pl-2 w-full truncate grow">
-            {queue[0] && (
-              <>
-                <span className="pr-1 text-yellow-500">COMING UP:</span>
-                {queue[0].title}
-              </>
-            )}
-          </div>
-          <div className="w-72 text-right">
-            <span className="pr-1 text-red-500">RESERVED:</span>
-            {queue.length}
-          </div>
-        </div>
       </div>
 
       {hasError && currentVideo && (
