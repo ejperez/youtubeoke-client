@@ -3,7 +3,6 @@ import { generateCode } from "../util/util";
 import { getSocket } from "../util/socket";
 import PlayerFrame from "../components/PlayerFrame";
 import PlayerHome from "../components/PlayerHome";
-import { QRCode } from "react-qr-code";
 
 export default function Player() {
   const [playerID, setPlayerID] = useState(null);
@@ -11,10 +10,10 @@ export default function Player() {
   const [currentVideo, setCurrentVideo] = useState(null);
   const [queue, setQueue] = useState([]);
   const [hasError, setHasError] = useState(false);
-  const remoteLink = `${document.location.href}/#${playerID}/remote`;
   const queueRef = useRef(queue);
   const currentVideoRef = useRef(currentVideo);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const playerInstance = useRef(null);
 
   useEffect(() => {
     // Get player ID from localStorage or generate a new one
@@ -30,13 +29,9 @@ export default function Player() {
 
     // Load queue and current video from localStorage
     const savedQueue = localStorage.getItem("queue");
-    const savedCurrentVideo = localStorage.getItem("currentVideo");
 
     if (savedQueue) {
       setQueue(JSON.parse(savedQueue));
-    }
-    if (savedCurrentVideo) {
-      setCurrentVideo(JSON.parse(savedCurrentVideo));
     }
 
     setIsInitialLoad(false);
@@ -50,8 +45,7 @@ export default function Player() {
     currentVideoRef.current = currentVideo;
 
     // Save queue and current video to localStorage
-    localStorage.setItem("queue", JSON.stringify(queue));
-    localStorage.setItem("currentVideo", JSON.stringify(currentVideo));
+    localStorage.setItem("queue", JSON.stringify([currentVideo, ...queue]));
   }, [queue, currentVideo, isInitialLoad]);
 
   const playNextInQueue = () => {
@@ -74,13 +68,31 @@ export default function Player() {
     });
   };
 
-  const handleError = () => {
+  const handleOnError = () => {
     setHasError(true);
+  };
+
+  const handleOnReady = (e) => {
+    playerInstance.current = e.target;
+  };
+
+  const handleStateChange = (isPlaying) => {
+    socket.emit("sync-event", {
+      action: "player-status-changed",
+      payload: {
+        playerID: playerID,
+        isPlaying: isPlaying,
+      },
+    });
   };
 
   const handleSkip = () => {
     playNextInQueue();
     setHasError(false);
+  };
+
+  const handlePlayInYT = () => {
+    document.location.href = `https://www.youtube.com/watch?v=${currentVideo.id}`;
   };
 
   // Autoplay first item in queue if nothing is playing
@@ -108,6 +120,12 @@ export default function Player() {
 
           break;
         case "add-to-queue":
+          const queueIds = queueRef.current.map((item) => item.id);
+
+          if (queueIds.includes(data.payload.video.id)) {
+            return;
+          }
+
           setQueue((queue) => [...queue, data.payload.video]);
 
           break;
@@ -119,6 +137,22 @@ export default function Player() {
           setQueue((queue) =>
             queue.filter((item) => item.id !== data.payload.video.id),
           );
+
+          break;
+        case "restart-current-video":
+          playerInstance.current?.seekTo(0);
+          playerInstance.current?.playVideo();
+          broadcastQueue();
+
+          break;
+        case "pause-current-video":
+          playerInstance.current?.pauseVideo();
+          broadcastQueue();
+
+          break;
+        case "play-current-video":
+          playerInstance.current?.playVideo();
+          broadcastQueue();
 
           break;
       }
@@ -134,74 +168,74 @@ export default function Player() {
     <>
       <div className="flex flex-col h-screen">
         <div className="flex z-50 gap-1 justify-between p-1 w-full text-sm bg-black">
-          <div className="flex gap-1 w-64 font-extrabold">
+          <div className="flex gap-1 shrink-0">
             <img
               className="w-5"
               src={`${import.meta.env.VITE_BASE_PATH}logo.png`}
               alt="Youtubeoke Logo"
             />
-            Youtubeoke
+            <div className="font-extrabold">Youtubeoke</div>
           </div>
-          <div className="flex w-full min-w-0 grow">
+          <div className="flex w-full min-w-0 grow gap-1">
             {currentVideo && (
-              <>
-                <span className="pr-1 text-green-500 shrink-0">
-                  NOW PLAYING
-                </span>
-                <span className="truncate">{currentVideo.title}</span>
-              </>
+              <div className="truncate text-green-500">
+                NOW PLAYING: <em>{currentVideo.title}</em>
+              </div>
             )}
-          </div>
-          <div className="flex pl-2 w-full min-w-0 grow">
             {queue[0] && (
-              <>
-                <span className="pr-1 text-yellow-500 shrink-0">COMING UP</span>
-                <span className="truncate">{queue[0].title}</span>
-              </>
+              <div className="truncate text-yellow-500">
+                NEXT SONG: <em>{queue[0].title}</em>
+              </div>
             )}
           </div>
-          <div className="w-72 text-right">
-            <span className="pr-1 text-red-500">RESERVED</span>
-            {queue.length}
+          <div className="flex shrink-0">
+            <div className="pr-1 text-red-500">RESERVED</div>
+            <div>{queue.length}</div>
           </div>
         </div>
 
-        {currentVideo ? (
+        {currentVideo && !hasError ? (
           <PlayerFrame
             videoID={currentVideo.id}
             onEnd={playNextInQueue}
-            onError={handleError}
+            onError={handleOnError}
+            onReady={handleOnReady}
+            onPlay={() => {
+              handleStateChange(true);
+            }}
+            onPause={() => {
+              handleStateChange(false);
+            }}
           />
+        ) : hasError ? (
+          <div className="relative flex items-center justify-center h-full w-full text-2xl bg-red-950">
+            <div className="text-center">
+              <h2 className="my-4 text-4xl">Oops!</h2>
+              We can't play the song "{currentVideo.title}"<br />
+              Click "Watch on YouTube" to play it or click the "Skip" button to
+              play the next song.
+              <div className="flex gap-2 justify-center mt-4">
+                <button
+                  type="button"
+                  className="w-52 px-4 py-2 my-4 text-2xl text-black bg-white rounded-full"
+                  onClick={handlePlayInYT}
+                >
+                  Watch on YouTube
+                </button>
+                <button
+                  type="button"
+                  className="w-52 px-4 py-2 my-4 text-2xl text-black bg-white rounded-full"
+                  onClick={handleSkip}
+                >
+                  Skip
+                </button>
+              </div>
+            </div>
+          </div>
         ) : (
           <PlayerHome playerID={playerID} />
         )}
       </div>
-
-      {hasError && currentVideo && (
-        <div className="absolute top-5 py-4 w-full text-2xl text-center rounded-2xl border-8 border-red-800">
-          <h2 className="my-4 text-4xl">Oops!</h2>
-          We can't play the song "{currentVideo.title}"<br />
-          Click "Watch on YouTube" to play it or click the "Skip" button to play
-          the next song.
-          <br />
-          <button
-            type="button"
-            className="px-4 py-2 my-4 text-2xl text-black bg-white rounded-full"
-            onClick={handleSkip}
-          >
-            SKIP
-          </button>
-        </div>
-      )}
-
-      {currentVideo && (
-        <div className="absolute bottom-10 z-50 p-1 w-full">
-          <QRCode
-            className="p-1 bg-white rounded-xl opacity-75 size-32"
-            value={remoteLink}
-          />
-        </div>
-      )}
     </>
   );
 }

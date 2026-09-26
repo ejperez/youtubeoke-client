@@ -1,4 +1,4 @@
-import { useLoaderData, useParams } from "react-router";
+import { useLoaderData, useParams, useOutletContext } from "react-router";
 import { removeFromFavorites } from "../util/faves";
 import { useState } from "react";
 import { playVideo } from "../util/yt";
@@ -8,6 +8,7 @@ import List from "./List";
 export default function RemoteFaves() {
   const faves = useLoaderData();
   const { playerID } = useParams();
+  const { updateFavesCount } = useOutletContext();
 
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [currentFaves, setCurrentFaves] = useState(faves);
@@ -39,10 +40,10 @@ export default function RemoteFaves() {
     {
       label: "Remove from favorites",
       action: async (e) => {
-        e.stopPropagation();
-
         const faves = await removeFromFavorites(selectedVideo.id);
 
+        e.stopPropagation();
+        updateFavesCount(faves.length);
         setCurrentFaves(faves);
         setSelectedVideo(null);
       },

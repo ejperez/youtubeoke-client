@@ -100,9 +100,36 @@ export const removeFromQueue = (playerID, video) => {
   });
 };
 
-export const getQueue = (playerID, video) => {
+export const getQueue = (playerID) => {
   socket.emit("sync-event", {
     action: "get-queue",
+    payload: {
+      playerID: playerID,
+    },
+  });
+};
+
+export const restartCurrentVideo = (playerID) => {
+  socket.emit("sync-event", {
+    action: "restart-current-video",
+    payload: {
+      playerID: playerID,
+    },
+  });
+};
+
+export const pauseCurrentVideo = (playerID) => {
+  socket.emit("sync-event", {
+    action: "pause-current-video",
+    payload: {
+      playerID: playerID,
+    },
+  });
+};
+
+export const playCurrentVideo = (playerID) => {
+  socket.emit("sync-event", {
+    action: "play-current-video",
     payload: {
       playerID: playerID,
     },

@@ -64,10 +64,10 @@ export default function RemoteSearch() {
     },
     {
       label: "Add to favorites",
-      action: async (e) => {
+      action: (e) => {
         e.stopPropagation();
 
-        await addToFavorites(selectedVideo);
+        addToFavorites(selectedVideo);
 
         setSelectedVideo(null);
       },
@@ -107,7 +107,11 @@ export default function RemoteSearch() {
             </button>
           )}
 
-          {isLoading && <div className="my-2 h-10"><AnimatedMessage message="Loading more..." heightClass="h-10" /></div>}
+          {isLoading && (
+            <div className="my-2 h-10">
+              <AnimatedMessage message="Loading more..." heightClass="h-10" />
+            </div>
+          )}
 
           {error && <ErrorComponent className="mt-2" message={error} />}
         </>

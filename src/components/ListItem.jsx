@@ -36,17 +36,22 @@ export default function ListItem({ item, clickHandler, isActive, options }) {
         </div>
       </button>
 
-      {options && (
+      {options && isActive && (
         <div className="absolute top-0 -right-full flex flex-wrap gap-2 w-full h-full">
           {options.map((item) => (
             <button
+              disabled={item?.isDisabled}
               key={item.label}
               onClick={(e) => {
                 setTimeout(() => {
                   item.action(e);
                 }, 200);
               }}
-              className="flex-1 bg-white/20 text-white rounded-2xl text-md active:bg-white active:text-black"
+              className={cn("flex-1 rounded-2xl text-md bg-white/20 font-bold", {
+                "active:bg-white active:text-black  text-white":
+                  !item.isDisabled,
+                "text-white/50": item.isDisabled,
+              })}
             >
               {item.label}
             </button>

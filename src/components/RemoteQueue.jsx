@@ -1,19 +1,25 @@
-import { useParams } from "react-router";
-import List from "./List";
-import ListItem from "./ListItem";
-import { useState, useEffect } from "react";
-import { playVideo } from "../util/yt";
-import { addToFavorites } from "../util/faves";
+import { useEffect, useState } from "react";
+import { useOutletContext, useParams } from "react-router";
+import { addToFavorites, isInFavorites } from "../util/faves";
 import { getSocket } from "../util/socket";
-import { removeFromQueue } from "../util/yt";
+import {
+  pauseCurrentVideo,
+  playCurrentVideo,
+  playVideo,
+  removeFromQueue,
+  restartCurrentVideo,
+} from "../util/yt";
+import List from "./List";
 
 export default function RemoteQueue() {
   const { playerID } = useParams();
   const socket = getSocket();
+  const { updateFavesCount } = useOutletContext();
 
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [currentQueue, setCurrentQueue] = useState([]);
   const [currentVideo, setCurrentVideo] = useState(null);
+  const [playerIsPlaying, setPlayerIsPlaying] = useState(null);
 
   const modalCancelHandler = (e) => {
     e.stopPropagation();
@@ -26,10 +32,28 @@ export default function RemoteQueue() {
         return;
       }
 
+      console.log(data);
+
       switch (data.action) {
         case "current-queue":
-          setCurrentQueue(data.payload.queue);
-          setCurrentVideo(data.payload.currentVideo);
+          setCurrentQueue(
+            data.payload.queue.map((item) => {
+              item.isFavorited = isInFavorites(item.id);
+
+              return item;
+            }),
+          );
+
+          if (data.payload.currentVideo) {
+            data.payload.currentVideo.isFavorited = isInFavorites(
+              data.payload.currentVideo.id,
+            );
+            setCurrentVideo(data.payload.currentVideo);
+          }
+
+          break;
+        case "player-status-changed":
+          setPlayerIsPlaying(data.payload.isPlaying);
 
           break;
       }
@@ -47,7 +71,7 @@ export default function RemoteQueue() {
     };
   }, []);
 
-  const menuOptions = [
+  const queueMenuOptions = [
     {
       label: "Play",
       action: (e) => {
@@ -59,19 +83,59 @@ export default function RemoteQueue() {
     },
     {
       label: "Add to favorites",
-      action: async (e) => {
+      action: (e) => {
+        const newFaves = addToFavorites(selectedVideo);
+
         e.stopPropagation();
-        await addToFavorites(selectedVideo);
+        updateFavesCount(newFaves.length);
         setSelectedVideo(null);
       },
+      isDisabled: selectedVideo && selectedVideo.isFavorited,
     },
     {
       label: "Remove from queue",
       action: (e) => {
         e.stopPropagation();
         removeFromQueue(playerID, selectedVideo);
+      },
+    },
+    {
+      label: "Cancel",
+      action: modalCancelHandler,
+    },
+  ];
+
+  const currentMenuOptions = [
+    {
+      label: "Restart",
+      action: (e) => {
+        e.stopPropagation();
+        restartCurrentVideo(playerID);
         setSelectedVideo(null);
       },
+    },
+    {
+      label: playerIsPlaying ? "Pause" : "Play",
+      action: (e) => {
+        e.stopPropagation();
+
+        if (playerIsPlaying) {
+          pauseCurrentVideo(playerID);
+        } else {
+          playCurrentVideo(playerID);
+        }
+      },
+    },
+    {
+      label: "Add to favorites",
+      action: (e) => {
+        const newFaves = addToFavorites(currentVideo);
+
+        e.stopPropagation();
+        updateFavesCount(newFaves.length);
+        setSelectedVideo(null);
+      },
+      isDisabled: currentVideo && currentVideo.isFavorited,
     },
     {
       label: "Cancel",
@@ -86,18 +150,37 @@ export default function RemoteQueue() {
   return (
     <div className="px-4">
       <div className="pb-2 text-sm font-bold">NOW PLAYING</div>
-      <ul className="flex flex-col gap-2">
+
+      {currentVideo && (
+        <List
+          items={[currentVideo]}
+          selectedItem={selectedVideo}
+          menuOptions={currentMenuOptions}
+          onSelect={listClickHandler}
+          emptyMessage="Nothing"
+        />
+      )}
+
+      {/* <ul className="flex flex-col gap-2">
         {currentVideo ? (
-          [currentVideo].map((item) => <ListItem key={item.id} item={item} />)
+          [currentVideo].map((item) => (
+            <ListItem
+              key={item.id}
+              item={item}
+              menuOptions={currentMenuOptions}
+              onSelect={listClickHandler}
+            />
+          ))
         ) : (
           <div className="italic">Nothing</div>
         )}
-      </ul>
+      </ul> */}
+
       <div className="pb-2 pt-4 text-sm font-bold">IN QUEUE</div>
       <List
         items={currentQueue}
         selectedItem={selectedVideo}
-        menuOptions={menuOptions}
+        menuOptions={queueMenuOptions}
         onSelect={listClickHandler}
         emptyMessage="Nothing"
       />

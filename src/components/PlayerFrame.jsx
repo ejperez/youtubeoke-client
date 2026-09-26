@@ -1,6 +1,13 @@
 import YouTube from "react-youtube";
 
-export default function PlayerFrame({ videoID, onError, onEnd }) {
+export default function PlayerFrame({
+  videoID,
+  onError,
+  onEnd,
+  onReady,
+  onPlay,
+  onPause,
+}) {
   const opts = {
     height: "1280",
     width: "720",
@@ -25,8 +32,18 @@ export default function PlayerFrame({ videoID, onError, onEnd }) {
       opts={opts}
       iframeClassName="h-full w-full"
       onStateChange={(event) => {
-        if (event.data === 0) {
-          onEnd();
+        switch (event.data) {
+          case 0:
+            onEnd();
+            break;
+          case 1:
+            onPlay();
+            break;
+          case 2:
+            onPause();
+            break;
+          default:
+            onPause();
         }
 
         // Turn off subtitles by force
@@ -36,6 +53,7 @@ export default function PlayerFrame({ videoID, onError, onEnd }) {
         }
       }}
       onError={onError}
+      onReady={onReady}
     />
   );
 }

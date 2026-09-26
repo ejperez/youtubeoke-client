@@ -52,12 +52,8 @@ export default function Remote() {
   }, []);
 
   useEffect(() => {
-    const getFavesCount = async () => {
-      const faves = await getFavorites();
-      setFavesCount(faves.length);
-    };
-
-    getFavesCount();
+    const faves = getFavorites();
+    setFavesCount(faves.length);
   }, []);
 
   const handleSubmit = () => {
@@ -192,6 +188,7 @@ export default function Remote() {
           <Outlet
             context={{
               clearKeyword: () => (keywordField.current.value = ""),
+              updateFavesCount: (count) => setFavesCount(count),
             }}
           />
         </Loader>

@@ -1,53 +1,36 @@
-export const addToFavorites = async (item) => {
-  return new Promise((resolve) => {
-    const currentFaveIDs = JSON.parse(localStorage.getItem("fave_ids") || "[]");
-    const currentFaves = JSON.parse(localStorage.getItem("faves") || "[]");
+export const addToFavorites = (item) => {
+  const currentFaves = JSON.parse(localStorage.getItem("faves") || "[]");
+  const currentFaveIds = currentFaves.map((item) => item.id);
 
-    if (currentFaveIDs.includes(item.id)) {
-      return resolve(currentFaves);
-    }
+  if (currentFaveIds.includes(item.id)) {
+    return resolve(currentFaves);
+  }
 
-    const newCurrentFaveIDS = [...currentFaveIDs, item.id];
-    const newCurrentFaves = [...currentFaves, item];
+  const newCurrentFaves = [...currentFaves, item];
 
-    localStorage.setItem("fave_ids", JSON.stringify(newCurrentFaveIDS));
-    localStorage.setItem("faves", JSON.stringify(newCurrentFaves));
+  localStorage.setItem("faves", JSON.stringify(newCurrentFaves));
 
-    return resolve(newCurrentFaves);
-  });
+  return newCurrentFaves;
 };
 
 export const getFavorites = () => {
-  return new Promise((resolve) => {
-    const currentFaves = JSON.parse(localStorage.getItem("faves") || "[]");
+  const currentFaves = JSON.parse(localStorage.getItem("faves") || "[]");
 
-    return resolve(currentFaves);
-  });
+  return currentFaves;
 };
 
-export const isInFavorites = async (id) => {
-  return new Promise((resolve) => {
-    if (!("localStorage" in window)) {
-      return resolve(false);
-    }
+export const isInFavorites = (id) => {
+  const currentFaves = JSON.parse(localStorage.getItem("faves") || "[]");
+  const currentFaveIds = currentFaves.map((item) => item.id);
 
-    const currentFaveIDs = JSON.parse(localStorage.getItem("fave_ids") || "[]");
-
-    return resolve(currentFaveIDs.includes(id));
-  });
+  return currentFaveIds.includes(id);
 };
 
-export const removeFromFavorites = async (id) => {
-  return new Promise((resolve) => {
-    const currentFaveIDs = JSON.parse(localStorage.getItem("fave_ids") || "[]");
-    const currentFaves = JSON.parse(localStorage.getItem("faves") || "[]");
+export const removeFromFavorites = (id) => {
+  const currentFaves = JSON.parse(localStorage.getItem("faves") || "[]");
+  const newCurrentFaves = currentFaves.filter((item) => item.id !== id);
 
-    const newCurrentFaveIDS = currentFaveIDs.filter((item) => item !== id);
-    const newCurrentFaves = currentFaves.filter((item) => item.id !== id);
+  localStorage.setItem("faves", JSON.stringify(newCurrentFaves));
 
-    localStorage.setItem("fave_ids", JSON.stringify(newCurrentFaveIDS));
-    localStorage.setItem("faves", JSON.stringify(newCurrentFaves));
-
-    return resolve(newCurrentFaves);
-  });
+  return newCurrentFaves;
 };
