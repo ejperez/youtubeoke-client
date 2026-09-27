@@ -1,14 +1,14 @@
 import { useLoaderData, useParams, useOutletContext } from "react-router";
 import { removeFromFavorites } from "../util/faves";
 import { useState } from "react";
-import { playVideo } from "../util/yt";
-import { addToQueue } from "../util/yt";
 import List from "./List";
+import useRemoteSync from "../hooks/useRemoteSync";
 
 export default function RemoteFaves() {
   const faves = useLoaderData();
   const { playerID } = useParams();
-  const { updateFavesCount } = useOutletContext();
+  const { setFavesCount } = useOutletContext();
+  const { emitEvent } = useRemoteSync({ playerID });
 
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [currentFaves, setCurrentFaves] = useState(faves);
@@ -23,8 +23,7 @@ export default function RemoteFaves() {
       label: "Play",
       action: (e) => {
         e.stopPropagation();
-
-        playVideo(playerID, selectedVideo);
+        emitEvent("play-video", { video: selectedVideo });
         setSelectedVideo(null);
       },
     },
@@ -32,8 +31,7 @@ export default function RemoteFaves() {
       label: "Add to queue",
       action: (e) => {
         e.stopPropagation();
-
-        addToQueue(playerID, selectedVideo);
+        emitEvent("add-to-queue", { video: selectedVideo });
         setSelectedVideo(null);
       },
     },
@@ -43,7 +41,7 @@ export default function RemoteFaves() {
         const faves = await removeFromFavorites(selectedVideo.id);
 
         e.stopPropagation();
-        updateFavesCount(faves.length);
+        setFavesCount(faves.length);
         setCurrentFaves(faves);
         setSelectedVideo(null);
       },

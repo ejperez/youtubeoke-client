@@ -1,14 +1,19 @@
 import { useState } from "react";
-import { getNextPage, playVideo, addToQueue } from "../util/yt";
-import { addToFavorites } from "../util/faves";
 import { useLoaderData, useParams } from "react-router";
-import { AnimatedMessage } from "./Loader";
-import List from "./List";
+import useRemoteSync from "../hooks/useRemoteSync";
+import { addToFavorites, isInFavorites } from "../util/faves";
+import { getNextPage } from "../util/yt";
 import ErrorComponent from "./ErrorComponent";
+import List from "./List";
+import { AnimatedMessage } from "./Loader";
 
 export default function RemoteSearch() {
   const { items, hasNextPage } = useLoaderData();
   const { playerID } = useParams();
+  const { emitEvent, currentQueue, currentVideo } = useRemoteSync({ playerID });
+  const queueIds = [...currentQueue, currentVideo]
+    .map((item) => item?.id)
+    .filter(Boolean);
 
   const [currentItems, setCurrentItems] = useState(items);
   const [currentHasNextPage, setCurrentHasNextPage] = useState(hasNextPage);
@@ -48,8 +53,7 @@ export default function RemoteSearch() {
       label: "Play",
       action: (e) => {
         e.stopPropagation();
-
-        playVideo(playerID, selectedVideo);
+        emitEvent("play-video", { video: selectedVideo });
         setSelectedVideo(null);
       },
     },
@@ -57,20 +61,19 @@ export default function RemoteSearch() {
       label: "Add to queue",
       action: (e) => {
         e.stopPropagation();
-
-        addToQueue(playerID, selectedVideo);
+        emitEvent("add-to-queue", { video: selectedVideo });
         setSelectedVideo(null);
       },
+      isDisabled: selectedVideo && queueIds.includes(selectedVideo.id),
     },
     {
       label: "Add to favorites",
       action: (e) => {
         e.stopPropagation();
-
         addToFavorites(selectedVideo);
-
         setSelectedVideo(null);
       },
+      isDisabled: selectedVideo && isInFavorites(selectedVideo.id),
     },
     {
       label: "Cancel",

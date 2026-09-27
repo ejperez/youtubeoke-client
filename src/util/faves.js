@@ -3,7 +3,7 @@ export const addToFavorites = (item) => {
   const currentFaveIds = currentFaves.map((item) => item.id);
 
   if (currentFaveIds.includes(item.id)) {
-    return resolve(currentFaves);
+    return currentFaves;
   }
 
   const newCurrentFaves = [...currentFaves, item];

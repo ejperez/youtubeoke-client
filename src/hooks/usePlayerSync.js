@@ -51,7 +51,7 @@ export default function usePlayerSync({
       }
 
       switch (data.action) {
-        case "play-item":
+        case "play-video":
           setCurrentVideo(data.payload.video);
           break;
         case "add-to-queue": {

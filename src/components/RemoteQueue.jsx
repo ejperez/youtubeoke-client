@@ -1,83 +1,29 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useOutletContext, useParams } from "react-router";
 import { addToFavorites, isInFavorites } from "../util/faves";
-import { getSocket } from "../util/socket";
-import {
-  pauseCurrentVideo,
-  playCurrentVideo,
-  playVideo,
-  removeFromQueue,
-  restartCurrentVideo,
-} from "../util/yt";
 import List from "./List";
+import useRemoteSync from "../hooks/useRemoteSync";
 
 export default function RemoteQueue() {
   const { playerID } = useParams();
-  const socket = getSocket();
-  const { updateFavesCount } = useOutletContext();
+  const { setFavesCount } = useOutletContext();
 
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const [currentQueue, setCurrentQueue] = useState([]);
-  const [currentVideo, setCurrentVideo] = useState(null);
-  const [playerIsPlaying, setPlayerIsPlaying] = useState(null);
+  const { playerIsPlaying, currentQueue, currentVideo, emitEvent } =
+    useRemoteSync({ playerID });
 
   const modalCancelHandler = (e) => {
     e.stopPropagation();
     setSelectedVideo(null);
   };
 
-  useEffect(() => {
-    socket.on("sync-event", (data) => {
-      if (String(playerID) !== data.payload.playerID) {
-        return;
-      }
-
-      console.log(data);
-
-      switch (data.action) {
-        case "current-queue":
-          setCurrentQueue(
-            data.payload.queue.map((item) => {
-              item.isFavorited = isInFavorites(item.id);
-
-              return item;
-            }),
-          );
-
-          if (data.payload.currentVideo) {
-            data.payload.currentVideo.isFavorited = isInFavorites(
-              data.payload.currentVideo.id,
-            );
-            setCurrentVideo(data.payload.currentVideo);
-          }
-
-          break;
-        case "player-status-changed":
-          setPlayerIsPlaying(data.payload.isPlaying);
-
-          break;
-      }
-    });
-
-    socket.emit("sync-event", {
-      action: "get-queue",
-      payload: {
-        playerID: playerID,
-      },
-    });
-
-    return () => {
-      socket.off("sync-event");
-    };
-  }, []);
-
   const queueMenuOptions = [
     {
       label: "Play",
       action: (e) => {
         e.stopPropagation();
-        playVideo(playerID, selectedVideo);
-        removeFromQueue(playerID, selectedVideo);
+        emitEvent("play-video", { video: selectedVideo });
+        emitEvent("remove-from-queue", { video: selectedVideo });
         setSelectedVideo(null);
       },
     },
@@ -87,16 +33,16 @@ export default function RemoteQueue() {
         const newFaves = addToFavorites(selectedVideo);
 
         e.stopPropagation();
-        updateFavesCount(newFaves.length);
+        setFavesCount(newFaves.length);
         setSelectedVideo(null);
       },
-      isDisabled: selectedVideo && selectedVideo.isFavorited,
+      isDisabled: selectedVideo && isInFavorites(selectedVideo.id),
     },
     {
       label: "Remove from queue",
       action: (e) => {
         e.stopPropagation();
-        removeFromQueue(playerID, selectedVideo);
+        emitEvent("remove-from-queue", { video: selectedVideo });
       },
     },
     {
@@ -110,7 +56,7 @@ export default function RemoteQueue() {
       label: "Restart",
       action: (e) => {
         e.stopPropagation();
-        restartCurrentVideo(playerID);
+        emitEvent("restart-current-video");
         setSelectedVideo(null);
       },
     },
@@ -120,9 +66,9 @@ export default function RemoteQueue() {
         e.stopPropagation();
 
         if (playerIsPlaying) {
-          pauseCurrentVideo(playerID);
+          emitEvent("pause-current-video");
         } else {
-          playCurrentVideo(playerID);
+          emitEvent("play-current-video");
         }
       },
     },
@@ -132,10 +78,10 @@ export default function RemoteQueue() {
         const newFaves = addToFavorites(currentVideo);
 
         e.stopPropagation();
-        updateFavesCount(newFaves.length);
+        setFavesCount(newFaves.length);
         setSelectedVideo(null);
       },
-      isDisabled: currentVideo && currentVideo.isFavorited,
+      isDisabled: currentVideo && isInFavorites(currentVideo.id),
     },
     {
       label: "Cancel",
@@ -160,21 +106,6 @@ export default function RemoteQueue() {
           emptyMessage="Nothing"
         />
       )}
-
-      {/* <ul className="flex flex-col gap-2">
-        {currentVideo ? (
-          [currentVideo].map((item) => (
-            <ListItem
-              key={item.id}
-              item={item}
-              menuOptions={currentMenuOptions}
-              onSelect={listClickHandler}
-            />
-          ))
-        ) : (
-          <div className="italic">Nothing</div>
-        )}
-      </ul> */}
 
       <div className="pb-2 pt-4 text-sm font-bold">IN QUEUE</div>
       <List
