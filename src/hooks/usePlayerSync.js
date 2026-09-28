@@ -45,9 +45,9 @@ export default function usePlayerSync({
   }, [queue, currentVideo, playerID]);
 
   // Handle sync events from server
-  useEffect(() => {    
+  useEffect(() => {
     socket.on("sync-event", (data) => {
-      if (playerID !== data.payload.playerID) {
+      if (String(playerID) !== String(data.payload.playerID)) {
         return;
       }
 
@@ -78,11 +78,9 @@ export default function usePlayerSync({
         case "restart-current-video":
           playerInstance.current?.seekTo(0);
           playerInstance.current?.playVideo();
-          broadcastQueue();
           break;
         case "pause-current-video":
           playerInstance.current?.pauseVideo();
-          broadcastQueue();
           break;
         case "play-current-video":
           playerInstance.current?.playVideo();

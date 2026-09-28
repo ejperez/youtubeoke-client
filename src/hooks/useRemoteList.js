@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLoaderData, useOutletContext, useParams } from "react-router";
+import { useLoaderData, useOutletContext } from "react-router";
 import {
   addToFavorites,
   isInFavorites,
@@ -9,7 +9,6 @@ import useRemoteSync from "./useRemoteSync";
 
 export default function useRemoteList() {
   const faves = useLoaderData();
-  const { playerID } = useParams();
   const { setFavesCount } = useOutletContext();
 
   const [selectedVideo, setSelectedVideo] = useState(null);
@@ -20,7 +19,7 @@ export default function useRemoteList() {
     currentVideo,
     isQueueLoading,
     emitEvent,
-  } = useRemoteSync({ playerID });
+  } = useRemoteSync();
   const queueIds = [...currentQueue, currentVideo]
     .map((item) => item?.id)
     .filter(Boolean);

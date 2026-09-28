@@ -9,8 +9,6 @@ export default function useRemoteSearch() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  console.log("useRemoteSearch", currentItems.length);
-
   const loadMoreHandler = async () => {
     setError(null);
     setIsLoading(true);

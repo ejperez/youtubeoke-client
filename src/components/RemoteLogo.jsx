@@ -1,6 +1,8 @@
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
 
-export default function RemoteLogo({ playerID }) {
+export default function RemoteLogo() {
+  const { playerID } = useParams();
+
   return (
     <div>
       <Link to={`/${playerID}/remote/share`}>

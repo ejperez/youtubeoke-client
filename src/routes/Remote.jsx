@@ -1,26 +1,19 @@
-import { useParams, Outlet } from "react-router";
+import { Outlet } from "react-router";
 import Loader from "../components/Loader";
-import RemoteSearchBar from "../components/RemoteSearchBar";
-import RemoteNav from "../components/RemoteNav";
-import useRemoteView from "../hooks/useRemoteView";
-import useRemoteFavesCount from "../hooks/useRemoteFavesCount";
 import RemoteLogo from "../components/RemoteLogo";
+import RemoteNav from "../components/RemoteNav";
+import RemoteSearchBar from "../components/RemoteSearchBar";
+import useRemoteFavesCount from "../hooks/useRemoteFavesCount";
 
 export default function Remote() {
-  const { playerID } = useParams();
-  const { currentView } = useRemoteView();
   const { favesCount, setFavesCount } = useRemoteFavesCount();
 
   return (
     <>
       <header className="flex fixed top-0 z-1 w-full bg-black/50 py-1 px-2 gap-1">
-        <RemoteLogo playerID={playerID} />
-        <RemoteSearchBar playerID={playerID} currentView={currentView} />
-        <RemoteNav
-          playerID={playerID}
-          currentView={currentView}
-          favesCount={favesCount}
-        />
+        <RemoteLogo />
+        <RemoteSearchBar />
+        <RemoteNav favesCount={favesCount} />
       </header>
 
       <div className="mt-14">

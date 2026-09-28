@@ -1,9 +1,11 @@
-import { Form } from "react-router";
-import { cn } from "../util/util";
-import { useSearchParams } from "react-router";
 import { useRef } from "react";
+import { Form, useParams, useSearchParams } from "react-router";
+import useRemoteView from "../hooks/useRemoteView";
+import { cn } from "../util/util";
 
-export default function RemoteSearchBar({ playerID, currentView }) {
+export default function RemoteSearchBar() {
+  const { playerID } = useParams();
+  const { currentView } = useRemoteView();
   const [searchParams, _] = useSearchParams();
   const keyword = searchParams.get("keyword");
   const keywordField = useRef(null);
