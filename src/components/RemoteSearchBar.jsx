@@ -8,8 +8,6 @@ export default function RemoteSearchBar({ playerID, currentView }) {
   const keyword = searchParams.get("keyword");
   const keywordField = useRef(null);
 
-  console.log(currentView)
-
   const handleSubmit = () => {
     keywordField.current.blur();
   };

@@ -32,6 +32,8 @@ export default function RemoteSearch() {
         return [...currentItems, ...items];
       });
       setCurrentHasNextPage(hasNextPage);
+
+      window.scrollBy(0, window.innerHeight);
     } catch (error) {
       setError(error.message);
     }

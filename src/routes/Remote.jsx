@@ -23,7 +23,7 @@ export default function Remote() {
         />
       </header>
 
-      <div className="mt-16">
+      <div className="mt-14">
         <Loader>
           <Outlet
             context={{

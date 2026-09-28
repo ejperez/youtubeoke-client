@@ -17,7 +17,7 @@ export default function ListItem({ item, clickHandler, isActive, options }) {
           clickHandler(item);
         }}
       >
-        <div className="relative w-1/2">
+        <div className="relative w-1/4">
           <img
             src={item.image}
             className="w-full"
@@ -30,9 +30,9 @@ export default function ListItem({ item, clickHandler, isActive, options }) {
             {item.length}
           </div>
         </div>
-        <div className="w-1/2 text-left">
-          <p className="line-clamp-2 font-text font-bold">{item.title}</p>
-          <em className="text-xs">{item.channel}</em>
+        <div className="w-3/4 text-left">
+          <p className="line-clamp-1 font-text font-bold">{item.title}</p>
+          <em className="line-clamp-1 text-xs">{item.channel}</em>
         </div>
       </button>
 
