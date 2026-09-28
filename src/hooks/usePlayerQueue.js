@@ -57,6 +57,7 @@ export default function usePlayerQueue() {
     queue,
     setQueue,
     hasError,
+    setHasError,
     queueRef,
     currentVideoRef,
     playNextInQueue,

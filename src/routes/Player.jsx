@@ -14,6 +14,7 @@ export default function Player() {
     queue,
     setQueue,
     hasError,
+    setHasError,
     queueRef,
     currentVideoRef,
     playNextInQueue,
@@ -28,6 +29,7 @@ export default function Player() {
     setQueue,
     queueRef,
     currentVideoRef,
+    setHasError,
   });
 
   return (

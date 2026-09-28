@@ -9,6 +9,7 @@ export default function usePlayerSync({
   setQueue,
   queueRef,
   currentVideoRef,
+  setHasError,
 }) {
   const playerInstance = useRef(null);
 
@@ -56,6 +57,7 @@ export default function usePlayerSync({
       switch (data.action) {
         case "play-video":
           setCurrentVideo(data.payload.video);
+          setHasError(false);
           break;
         case "add-to-queue": {
           const queueIds = queueRef.current.map((item) => item.id);
