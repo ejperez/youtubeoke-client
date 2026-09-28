@@ -1,103 +1,35 @@
-import { useParams } from "react-router";
 import List from "./List";
-import ListItem from "./ListItem";
-import { useState, useEffect } from "react";
-import { playVideo } from "../util/yt";
-import { addToFavorites } from "../util/faves";
-import { getSocket } from "../util/socket";
-import { removeFromQueue } from "../util/yt";
+import useRemoteList from "../hooks/useRemoteList";
 
 export default function RemoteQueue() {
-  const { playerID } = useParams();
-  const socket = getSocket();
-
-  const [selectedVideo, setSelectedVideo] = useState(null);
-  const [currentQueue, setCurrentQueue] = useState([]);
-  const [currentVideo, setCurrentVideo] = useState(null);
-
-  const modalCancelHandler = (e) => {
-    e.stopPropagation();
-    setSelectedVideo(null);
-  };
-
-  useEffect(() => {
-    socket.on("sync-event", (data) => {
-      if (String(playerID) !== data.payload.playerID) {
-        return;
-      }
-
-      switch (data.action) {
-        case "current-queue":
-          setCurrentQueue(data.payload.queue);
-          setCurrentVideo(data.payload.currentVideo);
-
-          break;
-      }
-    });
-
-    socket.emit("sync-event", {
-      action: "get-queue",
-      payload: {
-        playerID: playerID,
-      },
-    });
-
-    return () => {
-      socket.off("sync-event");
-    };
-  }, []);
-
-  const menuOptions = [
-    {
-      label: "Play",
-      action: (e) => {
-        e.stopPropagation();
-        playVideo(playerID, selectedVideo);
-        removeFromQueue(playerID, selectedVideo);
-        setSelectedVideo(null);
-      },
-    },
-    {
-      label: "Add to favorites",
-      action: async (e) => {
-        e.stopPropagation();
-        await addToFavorites(selectedVideo);
-        setSelectedVideo(null);
-      },
-    },
-    {
-      label: "Remove from queue",
-      action: (e) => {
-        e.stopPropagation();
-        removeFromQueue(playerID, selectedVideo);
-        setSelectedVideo(null);
-      },
-    },
-    {
-      label: "Cancel",
-      action: modalCancelHandler,
-    },
-  ];
-
-  const listClickHandler = (item) => {
-    setSelectedVideo(item);
-  };
+  const {
+    currentQueue,
+    currentVideo,
+    currentMenuOptions,
+    listClickHandler,
+    queueMenuOptions,
+    selectedVideo,
+  } = useRemoteList();
 
   return (
     <div className="px-4">
       <div className="pb-2 text-sm font-bold">NOW PLAYING</div>
-      <ul className="flex flex-col gap-2">
-        {currentVideo ? (
-          [currentVideo].map((item) => <ListItem key={item.id} item={item} />)
-        ) : (
-          <div className="italic">Nothing</div>
-        )}
-      </ul>
+
+      {currentVideo && (
+        <List
+          items={[currentVideo]}
+          selectedItem={selectedVideo}
+          menuOptions={currentMenuOptions}
+          onSelect={listClickHandler}
+          emptyMessage="Nothing"
+        />
+      )}
+
       <div className="pb-2 pt-4 text-sm font-bold">IN QUEUE</div>
       <List
         items={currentQueue}
         selectedItem={selectedVideo}
-        menuOptions={menuOptions}
+        menuOptions={queueMenuOptions}
         onSelect={listClickHandler}
         emptyMessage="Nothing"
       />

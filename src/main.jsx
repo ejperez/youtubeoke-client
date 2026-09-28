@@ -1,15 +1,16 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./index.css";
 import { createHashRouter, RouterProvider } from "react-router";
-import Player from "./routes/Player.jsx";
-import Remote from "./routes/Remote.jsx";
-import RemoteSearch from "./components/RemoteSearch.jsx";
+import ErrorComponent from "./components/ErrorComponent.jsx";
 import { AnimatedMessage } from "./components/Loader.jsx";
 import RemoteFaves from "./components/RemoteFaves.jsx";
-import { remoteFavesLoader, remoteSearchLoader } from "./util/loaders.js";
 import RemoteQueue from "./components/RemoteQueue.jsx";
-import ErrorComponent from "./components/ErrorComponent.jsx";
+import RemoteSearch from "./components/RemoteSearch.jsx";
+import RemoteShare from "./components/RemoteShare.jsx";
+import "./index.css";
+import Player from "./routes/Player.jsx";
+import Remote from "./routes/Remote.jsx";
+import { remoteFavesLoader, remoteSearchLoader } from "./util/loaders.js";
 
 const router = createHashRouter([
   {
@@ -38,6 +39,10 @@ const router = createHashRouter([
       {
         path: "/:playerID/remote/queue",
         element: <RemoteQueue />,
+      },
+      {
+        path: "/:playerID/remote/share",
+        element: <RemoteShare />,
       },
     ],
   },

@@ -1,82 +1,20 @@
-import { useState } from "react";
-import { getNextPage, playVideo, addToQueue } from "../util/yt";
-import { addToFavorites } from "../util/faves";
-import { useLoaderData, useParams } from "react-router";
-import { AnimatedMessage } from "./Loader";
-import List from "./List";
+import useRemoteList from "../hooks/useRemoteList";
 import ErrorComponent from "./ErrorComponent";
+import List from "./List";
+import { AnimatedMessage } from "./Loader";
+import useRemoteSearch from "../hooks/useRemoteSearch";
 
 export default function RemoteSearch() {
-  const { items, hasNextPage } = useLoaderData();
-  const { playerID } = useParams();
+  const { searchMenuOptions, listClickHandler, selectedVideo } =
+    useRemoteList();
 
-  const [currentItems, setCurrentItems] = useState(items);
-  const [currentHasNextPage, setCurrentHasNextPage] = useState(hasNextPage);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedVideo, setSelectedVideo] = useState(null);
-  const [error, setError] = useState(null);
-
-  const loadMoreHandler = async () => {
-    setError(null);
-    setIsLoading(true);
-
-    try {
-      const { items, hasNextPage } = await getNextPage();
-
-      setCurrentItems((currentItems) => {
-        return [...currentItems, ...items];
-      });
-      setCurrentHasNextPage(hasNextPage);
-    } catch (error) {
-      setError(error.message);
-    }
-
-    setIsLoading(false);
-  };
-
-  const listClickHandler = (item) => {
-    setSelectedVideo(item);
-  };
-
-  const modalCancelHandler = (e) => {
-    e.stopPropagation();
-    setSelectedVideo(null);
-  };
-
-  const menuOptions = [
-    {
-      label: "Play",
-      action: (e) => {
-        e.stopPropagation();
-
-        playVideo(playerID, selectedVideo);
-        setSelectedVideo(null);
-      },
-    },
-    {
-      label: "Add to queue",
-      action: (e) => {
-        e.stopPropagation();
-
-        addToQueue(playerID, selectedVideo);
-        setSelectedVideo(null);
-      },
-    },
-    {
-      label: "Add to favorites",
-      action: async (e) => {
-        e.stopPropagation();
-
-        await addToFavorites(selectedVideo);
-
-        setSelectedVideo(null);
-      },
-    },
-    {
-      label: "Cancel",
-      action: modalCancelHandler,
-    },
-  ];
+  const {
+    loadMoreHandler,
+    currentItems,
+    currentHasNextPage,
+    isLoading,
+    error,
+  } = useRemoteSearch();
 
   return (
     <div className="px-4">
@@ -92,7 +30,7 @@ export default function RemoteSearch() {
                 index === self.findIndex((o) => o.id === obj.id),
             )}
             selectedItem={selectedVideo}
-            menuOptions={menuOptions}
+            menuOptions={searchMenuOptions}
             onSelect={listClickHandler}
           />
 
@@ -107,7 +45,11 @@ export default function RemoteSearch() {
             </button>
           )}
 
-          {isLoading && <div className="my-2 h-10"><AnimatedMessage message="Loading more..." heightClass="h-10" /></div>}
+          {isLoading && (
+            <div className="my-2 h-10">
+              <AnimatedMessage message="Loading more..." heightClass="h-10" />
+            </div>
+          )}
 
           {error && <ErrorComponent className="mt-2" message={error} />}
         </>

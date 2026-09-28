@@ -17,7 +17,7 @@ export default function ListItem({ item, clickHandler, isActive, options }) {
           clickHandler(item);
         }}
       >
-        <div className="relative w-1/2">
+        <div className="relative w-1/4">
           <img
             src={item.image}
             className="w-full"
@@ -30,23 +30,28 @@ export default function ListItem({ item, clickHandler, isActive, options }) {
             {item.length}
           </div>
         </div>
-        <div className="w-1/2 text-left">
-          <p className="line-clamp-2 font-text font-bold">{item.title}</p>
-          <em className="text-xs">{item.channel}</em>
+        <div className="w-3/4 text-left">
+          <p className="line-clamp-1 font-text font-bold">{item.title}</p>
+          <em className="line-clamp-1 text-xs">{item.channel}</em>
         </div>
       </button>
 
-      {options && (
+      {options && isActive && (
         <div className="absolute top-0 -right-full flex flex-wrap gap-2 w-full h-full">
           {options.map((item) => (
             <button
+              disabled={item?.isDisabled}
               key={item.label}
               onClick={(e) => {
                 setTimeout(() => {
                   item.action(e);
                 }, 200);
               }}
-              className="flex-1 bg-white/20 text-white rounded-2xl text-md active:bg-white active:text-black"
+              className={cn("flex-1 rounded-2xl text-sm bg-white/20 p-1", {
+                "active:bg-white active:text-black  text-white":
+                  !item.isDisabled,
+                "text-white/50": item.isDisabled,
+              })}
             >
               {item.label}
             </button>

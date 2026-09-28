@@ -1,8 +1,6 @@
-import { getSocket } from "./socket";
 import { decodeEntity } from "./util";
 
 const backendAPI = import.meta.env.VITE_YT_API_URL || "http://localhost:3030";
-const socket = getSocket();
 
 const mapFields = (items) =>
   items.map((item) => {
@@ -68,43 +66,4 @@ export const getNextPage = async () => {
   const data = await response.json();
 
   return processResponse(data);
-};
-
-export const playVideo = (playerID, video) => {
-  socket.emit("sync-event", {
-    action: "play-item",
-    payload: {
-      playerID: playerID,
-      video: video,
-    },
-  });
-};
-
-export const addToQueue = (playerID, video) => {
-  socket.emit("sync-event", {
-    action: "add-to-queue",
-    payload: {
-      playerID: playerID,
-      video: video,
-    },
-  });
-};
-
-export const removeFromQueue = (playerID, video) => {
-  socket.emit("sync-event", {
-    action: "remove-from-queue",
-    payload: {
-      playerID: playerID,
-      video: video,
-    },
-  });
-};
-
-export const getQueue = (playerID, video) => {
-  socket.emit("sync-event", {
-    action: "get-queue",
-    payload: {
-      playerID: playerID,
-    },
-  });
 };

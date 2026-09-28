@@ -2,7 +2,7 @@ import { getFavorites } from "./faves";
 import { search } from "./yt";
 
 export async function remoteFavesLoader() {
-  return await getFavorites();
+  return getFavorites();
 }
 
 export async function remoteSearchLoader({ request }) {
