@@ -1,12 +1,10 @@
 import { Link, useParams } from "react-router";
-import useRemoteSync from "../hooks/useRemoteSync";
 import useRemoteView from "../hooks/useRemoteView";
 import { cn } from "../util/util";
 
-export default function RemoteNav({ favesCount }) {
+export default function RemoteNav({ favesCount, currentQueue, currentVideo }) {
   const { playerID } = useParams();
   const { currentView } = useRemoteView();
-  const { currentQueue, currentVideo } = useRemoteSync();
   const queueCount = currentQueue.length + (currentVideo ? 1 : 0);
 
   return (

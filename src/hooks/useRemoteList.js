@@ -5,21 +5,20 @@ import {
   isInFavorites,
   removeFromFavorites,
 } from "../util/faves";
-import useRemoteSync from "./useRemoteSync";
 
 export default function useRemoteList() {
   const faves = useLoaderData();
-  const { setFavesCount } = useOutletContext();
-
-  const [selectedVideo, setSelectedVideo] = useState(null);
-  const [currentFaves, setCurrentFaves] = useState(faves);
   const {
+    setFavesCount,
     playerIsPlaying,
     currentQueue,
     currentVideo,
     isQueueLoading,
     emitEvent,
-  } = useRemoteSync();
+  } = useOutletContext();
+
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [currentFaves, setCurrentFaves] = useState(faves);
   const queueIds = [...currentQueue, currentVideo]
     .map((item) => item?.id)
     .filter(Boolean);
