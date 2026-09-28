@@ -40,8 +40,7 @@ export default function Player() {
           onEnd={playNextInQueue}
           onError={handleOnError}
           onReady={handleOnReady}
-          onPlay={() => handleStateChange(true)}
-          onPause={() => handleStateChange(false)}
+          onStateChange={handleStateChange}
         />
       ) : hasError ? (
         <PlayerError video={currentVideo} onSkip={handleSkip} />

@@ -12,6 +12,8 @@ export default function RemoteQueue() {
   const { playerIsPlaying, currentQueue, currentVideo, emitEvent } =
     useRemoteSync({ playerID });
 
+    console.log("currentQueue", currentQueue);
+
   const modalCancelHandler = (e) => {
     e.stopPropagation();
     setSelectedVideo(null);

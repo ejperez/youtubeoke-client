@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { getSocket } from "../util/socket";
+import { socket } from "../util/socket";
 
 export default function usePlayerSync({
   playerID,
@@ -10,7 +10,6 @@ export default function usePlayerSync({
   queueRef,
   currentVideoRef,
 }) {
-  const socket = getSocket();
   const playerInstance = useRef(null);
 
   const broadcastQueue = () => {
@@ -28,12 +27,14 @@ export default function usePlayerSync({
     playerInstance.current = e.target;
   };
 
-  const handleStateChange = (isPlaying) => {
+  const handleStateChange = () => {
     socket.emit("sync-event", {
       action: "player-status-changed",
       payload: {
         playerID: playerID,
-        isPlaying: isPlaying,
+        isPlaying:
+          playerInstance.current.getPlayerState() ===
+          window.YT.PlayerState.PLAYING,
       },
     });
   };
@@ -44,11 +45,13 @@ export default function usePlayerSync({
   }, [queue, currentVideo, playerID]);
 
   // Handle sync events from server
-  useEffect(() => {
+  useEffect(() => {    
     socket.on("sync-event", (data) => {
       if (playerID !== data.payload.playerID) {
         return;
       }
+
+      console.log(data);
 
       switch (data.action) {
         case "play-video":
@@ -85,13 +88,16 @@ export default function usePlayerSync({
           playerInstance.current?.playVideo();
           broadcastQueue();
           break;
+        case "get-player-state":
+          handleStateChange();
+          break;
       }
     });
 
     return () => {
       socket.off("sync-event");
     };
-  }, [playerID]);
+  }, []);
 
   return {
     handleOnReady,

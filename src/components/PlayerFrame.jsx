@@ -5,8 +5,7 @@ export default function PlayerFrame({
   onError,
   onEnd,
   onReady,
-  onPlay,
-  onPause,
+  onStateChange,
 }) {
   const opts = {
     height: "1280",
@@ -36,15 +35,9 @@ export default function PlayerFrame({
           case 0:
             onEnd();
             break;
-          case 1:
-            onPlay();
-            break;
-          case 2:
-            onPause();
-            break;
-          default:
-            onPause();
         }
+
+        onStateChange();
 
         // Turn off subtitles by force
         if (typeof event.target.unloadModule === "function") {

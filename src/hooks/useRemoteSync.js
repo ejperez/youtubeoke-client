@@ -1,29 +1,20 @@
 import { useEffect, useState } from "react";
-import { getSocket } from "../util/socket";
-
-const emitRemoteEvent = (socket, playerID, action, payload = {}) => {
-  socket.emit("sync-event", {
-    action: action,
-    payload: { playerID: playerID, ...payload },
-  });
-};
+import { socket, emitRemoteEvent } from "../util/socket";
 
 export default function useRemoteSync({ playerID }) {
   const [currentQueue, setCurrentQueue] = useState([]);
   const [currentVideo, setCurrentVideo] = useState(null);
   const [playerIsPlaying, setPlayerIsPlaying] = useState(null);
-  const socket = getSocket();
 
-  const emitEvent = (action, payload) =>
+  const emitEvent = (action, payload) => {    
     emitRemoteEvent(socket, playerID, action, payload);
+  };
 
   useEffect(() => {
     socket.on("sync-event", (data) => {
       if (String(playerID) !== data.payload.playerID) {
         return;
       }
-
-      console.log(data);
 
       switch (data.action) {
         case "current-queue":
@@ -39,6 +30,7 @@ export default function useRemoteSync({ playerID }) {
     });
 
     emitEvent("get-queue");
+    emitEvent("get-player-state");
 
     return () => {
       socket.off("sync-event");
