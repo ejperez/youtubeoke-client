@@ -3,13 +3,13 @@ import Loader from "../components/Loader";
 import RemoteSearchBar from "../components/RemoteSearchBar";
 import RemoteNav from "../components/RemoteNav";
 import useRemoteView from "../hooks/useRemoteView";
-import useFavesCount from "../hooks/useFavesCount";
+import useRemoteFavesCount from "../hooks/useRemoteFavesCount";
 import RemoteLogo from "../components/RemoteLogo";
 
 export default function Remote() {
   const { playerID } = useParams();
   const { currentView } = useRemoteView();
-  const { favesCount, setFavesCount } = useFavesCount();
+  const { favesCount, setFavesCount } = useRemoteFavesCount();
 
   return (
     <>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getFavorites } from "../util/faves";
 
-export default function useFavesCount() {
+export default function useRemoteFavesCount() {
   const [favesCount, setFavesCount] = useState(0);
 
   useEffect(() => {
