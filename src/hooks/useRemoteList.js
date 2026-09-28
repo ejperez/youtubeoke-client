@@ -32,6 +32,7 @@ export default function useRemoteList() {
     action: (e) => {
       e.stopPropagation();
       emitEvent("play-video", { video: selectedVideo });
+      emitEvent("remove-from-queue", { video: selectedVideo });
       setSelectedVideo(null);
     },
   };
@@ -58,15 +59,7 @@ export default function useRemoteList() {
 
   // Build the menu options
   const queueMenuOptions = [
-    {
-      label: "Play",
-      action: (e) => {
-        e.stopPropagation();
-        emitEvent("play-video", { video: selectedVideo });
-        emitEvent("remove-from-queue", { video: selectedVideo });
-        setSelectedVideo(null);
-      },
-    },
+    playOption,
     addToFavoritesOption,
     {
       label: "Remove from queue",
