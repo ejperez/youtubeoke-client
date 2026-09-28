@@ -7,7 +7,7 @@ export default function RemoteNav({ playerID, currentView, favesCount }) {
   const queueCount = currentQueue.length + (currentVideo ? 1 : 0);
 
   return (
-    <div className="flex items-center pl-1 gap-1">
+    <div className="flex items-center gap-1">
       <Link
         to={`/${playerID}/remote`}
         title="Click to see favorites"

@@ -4,6 +4,7 @@ import RemoteSearchBar from "../components/RemoteSearchBar";
 import RemoteNav from "../components/RemoteNav";
 import useRemoteView from "../hooks/useRemoteView";
 import useFavesCount from "../hooks/useFavesCount";
+import RemoteLogo from "../components/RemoteLogo";
 
 export default function Remote() {
   const { playerID } = useParams();
@@ -12,7 +13,8 @@ export default function Remote() {
 
   return (
     <>
-      <header className="flex fixed top-0 z-1 w-full bg-black/50 p-2">
+      <header className="flex fixed top-0 z-1 w-full bg-black/50 py-1 px-2 gap-1">
+        <RemoteLogo />
         <RemoteSearchBar playerID={playerID} currentView={currentView} />
         <RemoteNav
           playerID={playerID}

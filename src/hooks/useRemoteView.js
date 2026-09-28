@@ -7,7 +7,9 @@ export default function useRemoteView() {
     ? "search"
     : location.pathname.includes("/queue")
       ? "queue"
-      : "faves";
+      : location.pathname.includes("/share")
+        ? "share"
+        : "faves";
 
   return { currentView };
 }

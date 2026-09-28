@@ -8,21 +8,23 @@ export default function RemoteSearchBar({ playerID, currentView }) {
   const keyword = searchParams.get("keyword");
   const keywordField = useRef(null);
 
+  console.log(currentView)
+
   const handleSubmit = () => {
     keywordField.current.blur();
   };
 
   return (
-    <div className="grow">
+    <div className="flex items-center grow">
       <Form
         action={`/${playerID}/remote/search`}
         method="get"
-        className="relative z-3"
+        className="relative z-3 w-full"
         onSubmit={handleSubmit}
       >
         <input
           className={cn(
-            "w-full bg-black text-white! placeholder:text-white! border-white pl-3 py-2 pr-9 rounded-full border-2",
+            "w-full bg-black text-white! placeholder:text-white! border-white pl-3 py-1 pr-9 rounded-full border-2",
             {
               "bg-white text-black! ": currentView === "search",
             },
@@ -36,11 +38,11 @@ export default function RemoteSearchBar({ playerID, currentView }) {
         />
 
         <svg
-          className="size-6 absolute right-3 top-2"
+          className="size-6 absolute right-3 top-1.25"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#000"
+          stroke={currentView === "search" ? "#000" : "#fff"}
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
