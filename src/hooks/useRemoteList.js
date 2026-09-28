@@ -20,11 +20,45 @@ export default function useRemoteList() {
     .map((item) => item?.id)
     .filter(Boolean);
 
-  const modalCancelHandler = (e) => {
-    e.stopPropagation();
-    setSelectedVideo(null);
+  // Common menu options
+  const cancelOption = {
+    label: "Cancel",
+    action: (e) => {
+      e.stopPropagation();
+      setSelectedVideo(null);
+    },
   };
 
+  const playOption = {
+    label: "Play",
+    action: (e) => {
+      e.stopPropagation();
+      emitEvent("play-video", { video: selectedVideo });
+      setSelectedVideo(null);
+    },
+  };
+
+  const addToFavoritesOption = {
+    label: "Add to favorites",
+    action: (e) => {
+      e.stopPropagation();
+      addToFavorites(selectedVideo);
+      setSelectedVideo(null);
+    },
+    isDisabled: selectedVideo && isInFavorites(selectedVideo.id),
+  };
+
+  const addToQueueOption = {
+    label: "Add to queue",
+    action: (e) => {
+      e.stopPropagation();
+      emitEvent("add-to-queue", { video: selectedVideo });
+      setSelectedVideo(null);
+    },
+    isDisabled: selectedVideo && queueIds.includes(selectedVideo.id),
+  };
+
+  // Build the menu options
   const queueMenuOptions = [
     {
       label: "Play",
@@ -35,17 +69,7 @@ export default function useRemoteList() {
         setSelectedVideo(null);
       },
     },
-    {
-      label: "Add to favorites",
-      action: (e) => {
-        const newFaves = addToFavorites(selectedVideo);
-
-        e.stopPropagation();
-        setFavesCount(newFaves.length);
-        setSelectedVideo(null);
-      },
-      isDisabled: selectedVideo && isInFavorites(selectedVideo.id),
-    },
+    addToFavoritesOption,
     {
       label: "Remove from queue",
       action: (e) => {
@@ -53,10 +77,7 @@ export default function useRemoteList() {
         emitEvent("remove-from-queue", { video: selectedVideo });
       },
     },
-    {
-      label: "Cancel",
-      action: modalCancelHandler,
-    },
+    cancelOption,
   ];
 
   const currentMenuOptions = [
@@ -91,30 +112,12 @@ export default function useRemoteList() {
       },
       isDisabled: currentVideo && isInFavorites(currentVideo.id),
     },
-    {
-      label: "Cancel",
-      action: modalCancelHandler,
-    },
+    cancelOption,
   ];
 
   const favesMenuOptions = [
-    {
-      label: "Play",
-      action: (e) => {
-        e.stopPropagation();
-        emitEvent("play-video", { video: selectedVideo });
-        setSelectedVideo(null);
-      },
-    },
-    {
-      label: "Add to queue",
-      action: (e) => {
-        e.stopPropagation();
-        emitEvent("add-to-queue", { video: selectedVideo });
-        setSelectedVideo(null);
-      },
-      isDisabled: selectedVideo && queueIds.includes(selectedVideo.id),
-    },
+    playOption,
+    addToQueueOption,
     {
       label: "Remove from favorites",
       action: async (e) => {
@@ -126,10 +129,14 @@ export default function useRemoteList() {
         setSelectedVideo(null);
       },
     },
-    {
-      label: "Cancel",
-      action: modalCancelHandler,
-    },
+    cancelOption,
+  ];
+
+  const searchMenuOptions = [
+    playOption,
+    addToQueueOption,
+    addToFavoritesOption,
+    cancelOption,
   ];
 
   const listClickHandler = (item) => {
@@ -145,5 +152,6 @@ export default function useRemoteList() {
     currentFaves,
     selectedVideo,
     favesMenuOptions,
+    searchMenuOptions,
   };
 }
