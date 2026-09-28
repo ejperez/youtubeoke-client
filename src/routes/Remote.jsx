@@ -14,7 +14,7 @@ export default function Remote() {
   return (
     <>
       <header className="flex fixed top-0 z-1 w-full bg-black/50 py-1 px-2 gap-1">
-        <RemoteLogo />
+        <RemoteLogo playerID={playerID} />
         <RemoteSearchBar playerID={playerID} currentView={currentView} />
         <RemoteNav
           playerID={playerID}
