@@ -41,8 +41,10 @@ export default function useRemoteList() {
   const addToFavoritesOption = {
     label: "Add to favorites",
     action: (e) => {
+      const newFaves = addToFavorites(selectedVideo);
+
       e.stopPropagation();
-      addToFavorites(selectedVideo);
+      setFavesCount(newFaves.length);
       setSelectedVideo(null);
     },
     isDisabled: selectedVideo && isInFavorites(selectedVideo.id),
