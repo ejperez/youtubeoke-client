@@ -1,9 +1,4 @@
-import { getFavorites } from "./faves";
 import { search } from "./yt";
-
-export async function remoteFavesLoader() {
-  return getFavorites();
-}
 
 export async function remoteSearchLoader({ request }) {
   const [, searchParams] = request.url.split("?");

@@ -10,7 +10,7 @@ import RemoteShare from "./components/RemoteShare.jsx";
 import "./index.css";
 import Player from "./routes/Player.jsx";
 import Remote from "./routes/Remote.jsx";
-import { remoteFavesLoader, remoteSearchLoader } from "./util/loaders.js";
+import { remoteSearchLoader } from "./util/loaders.js";
 
 const router = createHashRouter([
   {
@@ -24,8 +24,6 @@ const router = createHashRouter([
       {
         path: "/:playerID/remote",
         element: <RemoteFaves />,
-        loader: remoteFavesLoader,
-        hydrateFallbackElement: <AnimatedMessage />,
       },
       {
         path: "/:playerID/remote/search",

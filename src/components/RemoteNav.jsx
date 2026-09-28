@@ -2,7 +2,7 @@ import { Link, useParams } from "react-router";
 import useRemoteView from "../hooks/useRemoteView";
 import { cn } from "../util/util";
 
-export default function RemoteNav({ favesCount, currentQueue, currentVideo }) {
+export default function RemoteNav({ faves, currentQueue, currentVideo }) {
   const { playerID } = useParams();
   const { currentView } = useRemoteView();
   const queueCount = currentQueue.length + (currentVideo ? 1 : 0);
@@ -27,7 +27,7 @@ export default function RemoteNav({ favesCount, currentQueue, currentVideo }) {
             },
           )}
         >
-          {favesCount}
+          {faves.length}
         </div>
         <svg
           xmlns="http://www.w3.org/2000/svg"

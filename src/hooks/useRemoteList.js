@@ -1,24 +1,19 @@
 import { useState } from "react";
-import { useLoaderData, useOutletContext } from "react-router";
-import {
-  addToFavorites,
-  isInFavorites,
-  removeFromFavorites,
-} from "../util/faves";
+import { useOutletContext } from "react-router";
 
 export default function useRemoteList() {
-  const faves = useLoaderData();
   const {
-    setFavesCount,
     playerIsPlaying,
     currentQueue,
     currentVideo,
     isQueueLoading,
     emitEvent,
+    faves,
+    addFave,
+    isInFaves,
+    removeFromFaves,
   } = useOutletContext();
-
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const [currentFaves, setCurrentFaves] = useState(faves);
   const queueIds = [...currentQueue, currentVideo]
     .map((item) => item?.id)
     .filter(Boolean);
@@ -44,13 +39,11 @@ export default function useRemoteList() {
   const addToFavoritesOption = {
     label: "Add to favorites",
     action: (e) => {
-      const newFaves = addToFavorites(selectedVideo);
-
+      addFave(selectedVideo);
       e.stopPropagation();
-      setFavesCount(newFaves.length);
       setSelectedVideo(null);
     },
-    isDisabled: selectedVideo && isInFavorites(selectedVideo.id),
+    isDisabled: selectedVideo && isInFaves(selectedVideo.id),
   };
 
   const addToQueueOption = {
@@ -109,13 +102,11 @@ export default function useRemoteList() {
     {
       label: "Add to favorites",
       action: (e) => {
-        const newFaves = addToFavorites(currentVideo);
-
+        addFave(currentVideo);
         e.stopPropagation();
-        setFavesCount(newFaves.length);
         setSelectedVideo(null);
       },
-      isDisabled: currentVideo && isInFavorites(currentVideo.id),
+      isDisabled: currentVideo && isInFaves(currentVideo.id),
     },
     cancelOption,
   ];
@@ -125,12 +116,9 @@ export default function useRemoteList() {
     addToQueueOption,
     {
       label: "Remove from favorites",
-      action: async (e) => {
-        const faves = await removeFromFavorites(selectedVideo.id);
-
+      action: (e) => {
+        removeFromFaves(selectedVideo.id);
         e.stopPropagation();
-        setFavesCount(faves.length);
-        setCurrentFaves(faves);
         setSelectedVideo(null);
       },
     },
@@ -154,7 +142,7 @@ export default function useRemoteList() {
     currentMenuOptions,
     currentQueue,
     currentVideo,
-    currentFaves,
+    faves,
     selectedVideo,
     favesMenuOptions,
     searchMenuOptions,
