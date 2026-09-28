@@ -1,15 +1,24 @@
 import { useState } from "react";
-import { useOutletContext, useParams } from "react-router";
-import { addToFavorites, isInFavorites } from "../util/faves";
+import { useLoaderData, useOutletContext, useParams } from "react-router";
+import {
+  addToFavorites,
+  isInFavorites,
+  removeFromFavorites,
+} from "../util/faves";
 import useRemoteSync from "./useRemoteSync";
 
 export default function useRemoteList() {
+  const faves = useLoaderData();
   const { playerID } = useParams();
   const { setFavesCount } = useOutletContext();
 
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [currentFaves, setCurrentFaves] = useState(faves);
   const { playerIsPlaying, currentQueue, currentVideo, emitEvent } =
     useRemoteSync({ playerID });
+  const queueIds = [...currentQueue, currentVideo]
+    .map((item) => item?.id)
+    .filter(Boolean);
 
   const modalCancelHandler = (e) => {
     e.stopPropagation();
@@ -88,6 +97,41 @@ export default function useRemoteList() {
     },
   ];
 
+  const favesMenuOptions = [
+    {
+      label: "Play",
+      action: (e) => {
+        e.stopPropagation();
+        emitEvent("play-video", { video: selectedVideo });
+        setSelectedVideo(null);
+      },
+    },
+    {
+      label: "Add to queue",
+      action: (e) => {
+        e.stopPropagation();
+        emitEvent("add-to-queue", { video: selectedVideo });
+        setSelectedVideo(null);
+      },
+      isDisabled: selectedVideo && queueIds.includes(selectedVideo.id),
+    },
+    {
+      label: "Remove from favorites",
+      action: async (e) => {
+        const faves = await removeFromFavorites(selectedVideo.id);
+
+        e.stopPropagation();
+        setFavesCount(faves.length);
+        setCurrentFaves(faves);
+        setSelectedVideo(null);
+      },
+    },
+    {
+      label: "Cancel",
+      action: modalCancelHandler,
+    },
+  ];
+
   const listClickHandler = (item) => {
     setSelectedVideo(item);
   };
@@ -98,6 +142,8 @@ export default function useRemoteList() {
     currentMenuOptions,
     currentQueue,
     currentVideo,
+    currentFaves,
     selectedVideo,
+    favesMenuOptions,
   };
 }

@@ -47,7 +47,7 @@ export default function ListItem({ item, clickHandler, isActive, options }) {
                   item.action(e);
                 }, 200);
               }}
-              className={cn("flex-1 rounded-2xl text-md bg-white/20", {
+              className={cn("flex-1 rounded-2xl text-sm bg-white/20 p-1", {
                 "active:bg-white active:text-black  text-white":
                   !item.isDisabled,
                 "text-white/50": item.isDisabled,
