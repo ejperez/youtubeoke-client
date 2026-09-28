@@ -7,7 +7,8 @@ export default function List({
   onSelect,
   emptyMessage = "No items",
 }) {
-  if (items.length === 0) return <div className="italic">{emptyMessage}</div>;
+  if (!items || (items && items.length === 0))
+    return <div className="italic">{emptyMessage}</div>;
 
   return (
     <ul className="flex flex-col gap-2 overflow-x-hidden">

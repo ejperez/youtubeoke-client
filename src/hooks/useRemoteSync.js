@@ -3,10 +3,11 @@ import { socket, emitRemoteEvent } from "../util/socket";
 
 export default function useRemoteSync({ playerID }) {
   const [currentQueue, setCurrentQueue] = useState([]);
+  const [isQueueLoading, setIsQueueLoading] = useState(true);
   const [currentVideo, setCurrentVideo] = useState(null);
   const [playerIsPlaying, setPlayerIsPlaying] = useState(null);
 
-  const emitEvent = (action, payload) => {    
+  const emitEvent = (action, payload) => {
     emitRemoteEvent(socket, playerID, action, payload);
   };
 
@@ -20,6 +21,7 @@ export default function useRemoteSync({ playerID }) {
         case "current-queue":
           setCurrentQueue(data.payload.queue);
           setCurrentVideo(data.payload.currentVideo);
+          setIsQueueLoading(false);
 
           break;
         case "player-status-changed":
@@ -37,5 +39,11 @@ export default function useRemoteSync({ playerID }) {
     };
   }, []);
 
-  return { playerIsPlaying, currentQueue, currentVideo, emitEvent };
+  return {
+    playerIsPlaying,
+    currentQueue,
+    currentVideo,
+    isQueueLoading,
+    emitEvent,
+  };
 }

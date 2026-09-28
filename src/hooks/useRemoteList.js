@@ -14,8 +14,13 @@ export default function useRemoteList() {
 
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [currentFaves, setCurrentFaves] = useState(faves);
-  const { playerIsPlaying, currentQueue, currentVideo, emitEvent } =
-    useRemoteSync({ playerID });
+  const {
+    playerIsPlaying,
+    currentQueue,
+    currentVideo,
+    isQueueLoading,
+    emitEvent,
+  } = useRemoteSync({ playerID });
   const queueIds = [...currentQueue, currentVideo]
     .map((item) => item?.id)
     .filter(Boolean);
@@ -155,5 +160,6 @@ export default function useRemoteList() {
     selectedVideo,
     favesMenuOptions,
     searchMenuOptions,
+    isQueueLoading,
   };
 }
