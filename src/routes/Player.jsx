@@ -31,23 +31,29 @@ export default function Player() {
     currentVideoRef,
     setHasError,
   });
+  const remoteLink = `${document.location.href}#/${playerID}/remote`;
 
   return (
     <div className="flex flex-col h-screen">
-      <PlayerStatusBar currentVideo={currentVideo} queue={queue} />
-
-      {currentVideo && !hasError ? (
-        <PlayerFrame
-          videoID={currentVideo.id}
-          onEnd={playNextInQueue}
-          onError={handleOnError}
-          onReady={handleOnReady}
-          onStateChange={handleStateChange}
-        />
-      ) : hasError ? (
+      <PlayerStatusBar
+        currentVideo={currentVideo}
+        queue={queue}
+        remoteLink={remoteLink}
+      />
+      {hasError ? (
         <PlayerError video={currentVideo} onSkip={handleSkip} />
+      ) : currentVideo ? (
+        <>
+          <PlayerFrame
+            videoID={currentVideo.id}
+            onEnd={playNextInQueue}
+            onError={handleOnError}
+            onReady={handleOnReady}
+            onStateChange={handleStateChange}
+          />
+        </>
       ) : (
-        <PlayerHome playerID={playerID} />
+        <PlayerHome playerID={playerID} remoteLink={remoteLink} />
       )}
     </div>
   );

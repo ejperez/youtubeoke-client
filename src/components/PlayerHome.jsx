@@ -23,9 +23,7 @@ function AnimatedBackground() {
   );
 }
 
-export default function PlayerHome({ playerID }) {
-  const remoteLink = `${document.location.href}#/${playerID}/remote`;
-
+export default function PlayerHome({ playerID, remoteLink }) {
   return (
     <div className="flex flex-col h-full w-full justify-center items-center">
       <AnimatedBackground />
